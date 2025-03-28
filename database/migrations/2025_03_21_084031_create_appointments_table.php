@@ -23,9 +23,11 @@ return new class extends Migration
             $table->string('payment_intent_id');
             $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
             $table->timestamps();
-
+            $table->boolean('is_completed')->default(false);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('expert_id')->references('id')->on('experts')->onDelete('cascade');
+            $table->boolean('is_open')->default(1);
+
         });
     }
 

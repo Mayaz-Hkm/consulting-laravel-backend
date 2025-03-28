@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('ratings', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('expert_id');
+            $table->unsignedBigInteger('user_id');
+            $table->float('starsNumber');
+            $table->text('comment')->nullable();  // إضافة عمود التعليق
+            $table->foreign('expert_id')->references('id')->on('experts')->onDelete('cascade');
             $table->timestamps();
         });
     }

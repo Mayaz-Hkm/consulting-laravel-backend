@@ -9,8 +9,8 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    // جلب التصنيفات مع الأقسام الفرعية
-    public function getCategoriesWithSections()
+
+    public function getCategoriesWithSections(): \Illuminate\Http\JsonResponse
     {
         $categories = Category::with('sections')->paginate(10);  // التصفح
 
@@ -29,15 +29,15 @@ class CategoryController extends Controller
         ]);
     }
 
-    // جلب قسم معين بناءً على المعرف
-    public function showCategory($id)
+
+    public function showCategory($id): \Illuminate\Http\JsonResponse
     {
         $category = Category::with('sections')->find($id);
 
         if (!$category) {
             return response()->json([
                 'status' => 0,
-                'message' => 'Invalid Category ID' // النص بدون ترجمة
+                'message' => 'Invalid Category ID'
             ], 404);
         }
 
@@ -48,12 +48,10 @@ class CategoryController extends Controller
         ]);
     }
 
-    // البحث عن الخبراء بناءً على التقييم
-    public function searchExpertsByRating($categoryId, Request $request)
+    public function searchExpertsByRating($categoryId, Request $request): \Illuminate\Http\JsonResponse
     {
-        // التحقق من صحة المدخلات
         $validated = $request->validate([
-            'rating' => 'nullable|numeric|min:0|max:5', // التحقق من قيمة التقييم
+            'rating' => 'nullable|numeric|min:0|max:5',
         ]);
 
         $rating = $request->input('rating', 0);
@@ -84,7 +82,7 @@ class CategoryController extends Controller
     }
 
     // Fetch categories
-    public function getCategories()
+    public function getCategories(): \Illuminate\Http\JsonResponse
     {
         $categories = Category::all(['id', 'CategoryName']);
         return response()->json($categories);
@@ -93,24 +91,22 @@ class CategoryController extends Controller
     // Fetch Sections
 
 
-     public function getSections($category_id)
-     {
-         // التأكد من أن الـ category_id موجود
-         if (!$category_id) {
-             return response()->json(['error' => 'Category ID is required'], 400);
-         }
+    public function getSections($category_id): \Illuminate\Http\JsonResponse
+    {
+        // التأكد من أن الـ category_id موجود
+        if (!$category_id) {
+            return response()->json(['error' => 'Category ID is required'], 400);
+        }
 
-         // جلب الأقسام المرتبطة بالـ category_id
-         $sections = Section::where('category_id', $category_id)
-             ->get(['id', 'sectionName']);
+        // جلب الأقسام المرتبطة بالـ category_id
+        $sections = Section::where('category_id', $category_id)
+            ->get(['id', 'sectionName']);
 
-         // التحقق إذا لم يتم العثور على بيانات
-         if ($sections->isEmpty()) {
-             return response()->json(['message' => 'No sections found for this category.'], 404);
-         }
+        if ($sections->isEmpty()) {
+            return response()->json(['message' => 'No sections found for this category.'], 404);
+        }
 
-         // إرجاع البيانات كـ JSON
-         return response()->json($sections);
-     }
+        return response()->json($sections);
+    }
 
 }

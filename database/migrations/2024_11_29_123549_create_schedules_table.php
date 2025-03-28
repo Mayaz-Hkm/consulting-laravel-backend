@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('expert_id');
-            $table->boolean('isAvailable')->default(false);
+            $table->boolean('isAvailable')->default(true);
             $table->string('day');
             $table->time('start')->nullable();
             $table->time('end')->nullable();

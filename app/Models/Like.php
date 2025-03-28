@@ -5,23 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PostInterest extends Model
+class Like extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'post_id', 'expert_id'
-    ];
+    protected $fillable = ['liker_id', 'liker_type', 'post_id'];
 
-    // علاقة مع المنشور (Post)
+    /**
+     * العلاقة مع المنشور
+     */
     public function post()
     {
         return $this->belongsTo(Post::class);
     }
 
-    // علاقة مع الخبير (User)
-    public function expert()
+    /**
+     * العلاقة مع المعجب (يمكن أن يكون مستخدمًا أو خبيرًا)
+     */
+    public function liker()
     {
-        return $this->belongsTo(User::class, 'expert_id');
+        return $this->morphTo();
     }
 }

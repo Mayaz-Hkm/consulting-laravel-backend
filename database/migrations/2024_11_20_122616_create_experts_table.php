@@ -25,8 +25,8 @@ return new class extends Migration
                 $table->float('rate')->default(0);
                 $table->string('email')->unique();
                 $table->string('timezone');
-                $table->time('start_time');
-                $table->time('end_time');
+               // $table->time('start_time');
+                //$table->time('end_time');
                 $table->timestamp('email_verified_at')->nullable();
                 $table->string('password');
                 $table->rememberToken();

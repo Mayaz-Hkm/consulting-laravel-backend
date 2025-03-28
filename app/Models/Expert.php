@@ -22,8 +22,6 @@ class Expert extends Authenticatable
         'timezone',
         'category_id',
         'section_id',
-        'start_time',
-        'end_time',
         'experience',
     ];
 
@@ -50,6 +48,20 @@ class Expert extends Authenticatable
     public function section()
     {
         return $this->belongsTo(Section::class);
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'userable');
+    }
+
+    public function likedPosts()
+    {
+        return $this->morphMany(Like::class, 'liker');
+    }
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'expert_id');
     }
 
 }

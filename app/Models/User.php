@@ -13,7 +13,8 @@ class User extends Authenticatable
     protected $fillable = [ 'userName',
         'email',
         'password',
-        'timezone', ];
+        'timezone',
+        'mobile'];
 
     protected $hidden = [
         'password',
@@ -21,5 +22,17 @@ class User extends Authenticatable
         ];
 
     protected $casts = [ 'email_verified_at' => 'datetime', ];
+
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'userable');
+    }
+
+    public function likedPosts()
+    {
+        return $this->morphMany(Like::class, 'liker');
+    }
+
 
 }

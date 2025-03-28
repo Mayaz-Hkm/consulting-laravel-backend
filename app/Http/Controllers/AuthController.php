@@ -8,13 +8,14 @@ use App\Models\User;
 use App\Models\Section;
 use App\Models\ExpertSchedule;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     // Register Function
-    public function register()
+    public function register(): \Illuminate\Http\JsonResponse
     {
         if (request('isExpert')) {
             return $this->registerExpert();
@@ -24,19 +25,20 @@ class AuthController extends Controller
     }
 
     // Expert Registration
-    public function registerExpert()
+    public function registerExpert(): \Illuminate\Http\JsonResponse
     {
         $validated = $this->validateExpertRegistration();
-
         // Creating expert instance and assigning its password
         $expert = Expert::create($validated);
         $expert->password = Hash::make($validated['password']);
+        $expert->tokens()->delete();
+        $token = $expert->createToken('auth_token')->plainTextToken;
         $expert->save();
 
         // Getting the selected working days and working hours
-        $workingDays = request('working_days'); // Array of selected days
-        $start_time = request('start_time');
-        $end_time = request('end_time');
+        $workingDays = $validated['working_days']; // Array of selected days
+        $start_time = $validated['start_time'];
+        $end_time = $validated['end_time'];
 
         // Add schedule for each selected day
         foreach ($workingDays as $day) {
@@ -50,16 +52,20 @@ class AuthController extends Controller
         return response()->json([
             'status' => 1,
             'message' => 'Expert registration successful',
+            'token' => $token,
         ]);
     }
 
     // Client Registration
-    public function registerClient()
+    public function registerClient(): \Illuminate\Http\JsonResponse
     {
         $validated = $this->validateClientRegistration();
 
         $user = User::create($validated);
         $user->password = Hash::make($validated['password']);
+        $user->tokens()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         $user->save();
 
         // Creating wallet for client
@@ -68,13 +74,14 @@ class AuthController extends Controller
         return response()->json([
             'status' => 1,
             'message' => 'Client registered successfully',
+            "token" => $token,
         ]);
     }
 
     // Login Function
-    public function login()
+    public function login(): \Illuminate\Http\JsonResponse
     {
-        \Log::info('isExpert value: ' . request('isExpert')); // تتبع قيمة isExpert
+        \Log::info('isExpert value: ' . request('isExpert'));
 
         $credentials = request()->validate([
             'email' => ['required', 'email'],
@@ -89,7 +96,7 @@ class AuthController extends Controller
     }
 
     // Expert Login
-    public function loginExpert($credentials)
+    public function loginExpert($credentials): \Illuminate\Http\JsonResponse
     {
         \Log::info('Attempting expert login with: ' . json_encode($credentials)); // تتبع بيانات تسجيل
         if (!Auth::guard('experts')->attempt($credentials)) {
@@ -113,12 +120,12 @@ class AuthController extends Controller
     }
 
     // Client Login
-    public function loginClient($credentials)
+    public function loginClient($credentials): \Illuminate\Http\JsonResponse
     {
         if (!Auth::attempt($credentials)) {
             return response()->json([
                 'status' => 0,
-                'message' => 'Invalid credentials',
+                'message' => 'Invalid user credentials',
             ]);
         }
 
@@ -130,11 +137,12 @@ class AuthController extends Controller
             'status' => 1,
             'message' => 'Client login successful',
             'isExpert' => 0,
-            'access_token' => $token,
+            'token' => $token,
         ]);
     }
 
-    public function logout(){
+    public function logout(): \Illuminate\Http\JsonResponse
+    {
         if (Auth::user() instanceof App\Models\Expert){
             return $this->logoutExpert();
         }
@@ -144,7 +152,7 @@ class AuthController extends Controller
     }
 
     // Logout Expert
-    public function logoutExpert()
+    public function logoutExpert(): \Illuminate\Http\JsonResponse
     {
         $expert = request()->user('experts');
         $expert->tokens()->delete();
@@ -155,7 +163,7 @@ class AuthController extends Controller
     }
 
     // Logout Client
-    public function logoutClient()
+    public function logoutClient(): \Illuminate\Http\JsonResponse
     {
         $client = request()->user();
         $client->tokens()->delete();
@@ -166,7 +174,7 @@ class AuthController extends Controller
     }
 
     // Validation for Expert Registration
-    public function validateExpertRegistration()
+    public function validateExpertRegistration(): array
     {
         return request()->validate([
             'userName' => ['required', 'string', 'max:30'],
@@ -185,7 +193,7 @@ class AuthController extends Controller
     }
 
     // Validation for Client Registration
-    public function validateClientRegistration()
+    public function validateClientRegistration(): array
     {
         return request()->validate([
             'userName' => ['required', 'string', 'max:30'],

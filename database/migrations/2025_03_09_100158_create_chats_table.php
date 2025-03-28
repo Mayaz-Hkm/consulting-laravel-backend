@@ -11,12 +11,15 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->nullable(); // إذا كان المستخدم هو الذي بدأ المحادثة
+            $table->unsignedBigInteger('expert_id')->nullable(); // إذا كان الخبير هو الذي بدأ المحادثة
             $table->timestamps();
         });
+
     }
 
     /**

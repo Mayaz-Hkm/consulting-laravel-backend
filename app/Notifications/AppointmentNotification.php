@@ -11,14 +11,16 @@ class AppointmentNotification extends Notification
 {
     use Queueable;
 
+    public $message;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($message)
     {
-        //
+        $this->message = $message;
     }
 
     /**
@@ -29,7 +31,7 @@ class AppointmentNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database']; // يمكنك استخدام البريد الإلكتروني و/أو قاعدة البيانات
     }
 
     /**
@@ -41,21 +43,21 @@ class AppointmentNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->line($this->message)  // استخدم الرسالة التي تم تمريرها عند الإنشاء
+            ->action('View Appointment', url('/appointments/'.$notifiable->id)) // اضغط على الرابط لعرض الموعد
+            ->line('Thank you for using our application!');
     }
 
     /**
-     * Get the array representation of the notification.
+     * Get the database representation of the notification.
      *
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toArray($notifiable)
+    public function toDatabase($notifiable)
     {
         return [
-            //
+            'message' => $this->message,  // تخزين الرسالة في قاعدة البيانات
         ];
     }
 }

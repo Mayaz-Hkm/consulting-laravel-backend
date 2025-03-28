@@ -2,21 +2,22 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class isClientMiddleware
 {
-
     public function handle(Request $request, Closure $next)
     {
-        if (!auth()->user() instanceof User){
+        // التحقق من أن المستخدم مسجل دخول عبر الـ "web" guard
+        if (!Auth::guard('web')->check()) {
             return response()->json([
                 'status' => 0,
-                'message' => 'you are not authorized'
-            ] , 403);
+                'message' => 'You are not authorized'
+            ], 403);
         }
+
         return $next($request);
     }
 }
