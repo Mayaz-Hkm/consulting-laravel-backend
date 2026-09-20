@@ -98,8 +98,6 @@ class AuthController extends Controller
     // Expert Login
     public function loginExpert($credentials): \Illuminate\Http\JsonResponse
 {
-    \Log::info('Attempting expert login with: ' . json_encode($credentials));
-
     $expert = Expert::where('email', $credentials['email'])->first();
 
     if (!$expert || !Hash::check($credentials['password'], $expert->password)) {
